@@ -1,0 +1,62 @@
+name: Generic CI Template
+
+on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: echo "Install your dependencies here"
+
+      - name: Build
+        run: echo "Run your build commands here" 
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: built-artifact/
+
+  test:
+    needs: build
+    runs-on: self-hosted
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: echo "Run your tests here"
+
+  # This is a relatively general and expensive linting process.
+  # Keep this in mind before you throw this at everything.
+  lint:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Full git history is needed to get a proper list of changed files within `super-linter`
+          fetch-depth: 0
+      
+      # This will checkout the global linters under the organization .github directory.
+      # If you want to use your own linters, comment this out.
+      - name: Checkout .github repo for predefined linters
+        uses: actions/checkout@v4
+        with:
+          repository: MaiikiruRepos/.github
+          sparse-checkout: .github/linters
+          path: .github/linters
+
+      - name: Lint Code Base
+        uses: github/super-linter@v7.3.0
+        env:
+          VALIDATE_ALL_CODEBASE: false
+          DEFAULT_BRANCH: "main"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,8 @@
+{
+    "name": "Generic CI Template",
+    "description": "This template gives a sample for building, linting, and running tests",
+    "iconName": "octicon feed-issue-reopen",
+    "categories": [
+        "continuous-integration"
+    ]
+}
